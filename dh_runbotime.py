@@ -3,10 +3,15 @@ from http.cookies import SimpleCookie
 from urllib.parse import parse_qs, urlparse
 
 try:
-    import psycopg2
+    import psycopg
+    PSYCOPG = "v3"
 except:
-    os.system('pip install psycopg2-binary -q')
-    import psycopg2
+    os.system('pip install "psycopg[binary]" -q 2>/dev/null')
+    try:
+        import psycopg
+        PSYCOPG = "v3"
+    except:
+        PSYCOPG = None
 
 PORT = int(os.environ.get("PORT", 48328))
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -19,7 +24,7 @@ def get_db():
     if conn is None:
         if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
             try:
-                conn = psycopg2.connect(DATABASE_URL)
+                conn = psycopg.connect(DATABASE_URL)
                 conn.autocommit = True
             except:
                 conn = sqlite3.connect(DB_PATH, check_same_thread=False)
